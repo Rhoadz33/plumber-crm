@@ -461,13 +461,33 @@
         document.getElementById('waitlistForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const email = this.email.value;
-            
-            const waitlist = JSON.parse(localStorage.getItem('plumberWaitlist') || '[]');
-            waitlist.push({ email: email, date: new Date().toISOString() });
-            localStorage.setItem('plumberWaitlist', JSON.stringify(waitlist));
-            
-            document.getElementById('successMessage').classList.add('show');
-            this.reset();
+            const button = this.querySelector('button');
+            button.textContent = 'Sending...';
+            button.disabled = true;
+
+            fetch('https://sheetdb.io/api/v1/yrl3p1x7pnf50', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    data: [{
+                        Email: email,
+                        Date: new Date().toISOString()
+                    }]
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('successMessage').classList.add('show');
+                button.textContent = 'Joined!';
+                document.getElementById('waitlistForm').reset();
+            })
+            .catch(error => {
+                button.textContent = 'Try Again';
+                button.disabled = false;
+                alert('Something went wrong. Please try again.');
+            });
         });
     </script>
 </body>
